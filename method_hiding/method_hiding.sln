@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "method_hiding", "method_hiding\method_hiding.csproj", "{E3AE4B10-2621-4756-9A50-AE5A8855B486}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abstract_class", "Abstract_class\Abstract_class.csproj", "{AEB39C58-F494-47BD-96C0-A51CD6AD7255}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "animal", "animal\animal.csproj", "{F6C12DAD-59CD-43B3-8A35-E1F4E396B2F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3AE4B10-2621-4756-9A50-AE5A8855B486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3AE4B10-2621-4756-9A50-AE5A8855B486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3AE4B10-2621-4756-9A50-AE5A8855B486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3AE4B10-2621-4756-9A50-AE5A8855B486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB39C58-F494-47BD-96C0-A51CD6AD7255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEB39C58-F494-47BD-96C0-A51CD6AD7255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEB39C58-F494-47BD-96C0-A51CD6AD7255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB39C58-F494-47BD-96C0-A51CD6AD7255}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6C12DAD-59CD-43B3-8A35-E1F4E396B2F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6C12DAD-59CD-43B3-8A35-E1F4E396B2F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6C12DAD-59CD-43B3-8A35-E1F4E396B2F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6C12DAD-59CD-43B3-8A35-E1F4E396B2F2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
