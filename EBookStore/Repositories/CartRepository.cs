@@ -49,7 +49,8 @@ namespace BookShoppingCartMvcUI.Repositories
                         BookId = bookId,
                         ShoppingCartId = cart.Id,
                         Quantity = qty,
-                        
+                        UnitPrice = book.Price
+
                     };
                     _db.CartDetails.Add(cartItem);
                 }
@@ -109,25 +110,88 @@ namespace BookShoppingCartMvcUI.Repositories
         }
 
         public async Task<ShoppingCart> GetCart(string userId)
-        {
-            var cart = await _db.ShoppingCarts.FirstOrDefaultAsync(x => x.UserId == userId);
-            return cart;
+        {                   
+            var cart = await _db.ShoppingCarts
+                                .Include(c => c.CartDetails)
+                                .ThenInclude(cd => cd.Book)
+                                .FirstOrDefaultAsync(x => x.UserId == userId);
+            return cart;        
         }
 
         public async Task<int> GetCartItemCount(string userId="")
         {
-            if(!string.IsNullOrEmpty(userId))
+            if(string.IsNullOrEmpty(userId))
             {
                 userId = GetUserId();
             }
             var data = await (from cart in _db.ShoppingCarts
                         join cartDetail in _db.CartDetails
                         on cart.Id equals cartDetail.ShoppingCartId
+                        where cart.UserId == userId
                         select new { cartDetail.Id }
                         ).ToListAsync();
             return data.Count;
         }
-                        
+
+        public async Task<bool> DoCheckout(CheckoutModel model)
+        {
+            using var transaction = _db.Database.BeginTransaction();
+            try
+            {
+                //move data from cartDetail to order and orderDetail then we will remove cartDetail
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId))
+                    throw new UnauthorizedAccessException("user is not logged-in");
+                var cart = await GetCart(userId);
+                if (cart is null)
+                    throw new Exception("Invalid Cart");
+                if (cart is null)
+                    throw new Exception("Invalid Cart");
+                var cartDetail = _db.CartDetails.Where(a => a.ShoppingCartId == cart.Id).ToList();
+                if(cartDetail.Count == 0)
+                    throw new Exception("No items in cart");
+                var pendingRecord = _db.orderStatuses.FirstOrDefault(s => s.StatusName == "Pending");
+                if(pendingRecord is null)
+                    throw new Exception("Order status does not have Pending Status");
+                var order = new Order
+                {
+                    UserId = userId,
+                    CreateDate = DateTime.UtcNow,
+                    Name = model.Name,
+                    Email = model.Email,
+                    MobileNumber = model.MobileNumber,
+                    PaymentMethod = model.PaymentMethod,
+                    Address = model.Address,
+                    IsPaid = false,
+                    OrderStatusId = pendingRecord.Id,//pending
+
+                };
+                _db.Orders.Add(order);
+                _db.SaveChanges();
+                foreach (var item in cartDetail)
+                {
+                    var orderDetail = new OrderDetail
+                    {
+                        BookId = item.BookId,
+                        OrderId = order.Id,                        
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Book.Price
+                    };
+                    _db.OrderDetails.Add(orderDetail);
+                }
+                _db.SaveChanges();
+                //removing the cartdetails
+                _db.CartDetails.RemoveRange(cartDetail);
+                _db.SaveChanges();
+                transaction.Commit();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }               
         private string GetUserId()
         {
             var principal = _httpContextAccessor.HttpContext?.User;
