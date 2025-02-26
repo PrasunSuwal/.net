@@ -35,6 +35,30 @@ namespace EBookStore.Controllers
             int cartItem = await _cartRepo.GetCartItemCount();
             return Ok(cartItem);
         }
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async  Task<IActionResult> Checkout(CheckoutModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            bool isCheckout = await _cartRepo.DoCheckout(model);
+            if (!isCheckout)
+                return RedirectToAction(nameof(OrderFailure));
+            return RedirectToAction(nameof(OrderSuccess));
+        }
+
+        public IActionResult OrderSuccess()
+        {
+            return View();
+        }
+        public IActionResult OrderFailure()
+        {
+            return View();
+        }
+
 
     }
 }
