@@ -5,28 +5,43 @@ namespace EBookStore.Data
 {
     public class DbSeeder
     {
-        public static async Task  SeedDefaultData(IServiceProvider service)
+        public static async Task SeedDefaultData(IServiceProvider serviceProvider)
         {
-            var userMgr = service.GetService<UserManager<IdentityUser>>();
-            var roleMgr = service.GetService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            //adding some roles to db
-            await roleMgr.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            await roleMgr.CreateAsync(new IdentityRole(Roles.User.ToString()));
+            string[] roleNames = { "Admin", "User" };
+            IdentityResult roleResult;
 
-            //create admin user
-            var admin = new IdentityUser
+            foreach (var roleName in roleNames)
             {
-                UserName = "admin",
-                Email = "admin@gmail.com",
+                var roleExist = await roleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            var adminUser = new IdentityUser
+            {
+                UserName = "admin@admin.com",
+                Email = "admin@admin.com",
                 EmailConfirmed = true
             };
-            var userInDb = await userMgr.FindByEmailAsync(admin.Email);
-            if (userInDb is null)
+
+            string adminPassword = "Admin@123";
+
+            var user = await userManager.FindByEmailAsync(adminUser.Email);
+
+            if (user == null)
             {
-                await userMgr.CreateAsync(admin, "Admin@123");
-                await userMgr.AddToRoleAsync(admin,Roles.Admin.ToString());
+                var createAdminUser = await userManager.CreateAsync(adminUser, adminPassword);
+                if (createAdminUser.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
             }
         }
+
     }
 }
