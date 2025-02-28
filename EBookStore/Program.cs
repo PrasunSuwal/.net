@@ -3,6 +3,8 @@ using EBookStore;
 using EBookStore.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using EBookStore.Shared;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,13 +23,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IHomeRepository, HomeRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
 builder.Services.AddTransient<IUserOrderRepository, UserOrderRepository>();
+builder.Services.AddTransient<IStockRepository, StockRepository>();
+builder.Services.AddTransient<IGenreRepository, GenreRepository>();
+builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IBookRepository, BookRepository>();
+builder.Services.AddTransient<IReportRepository, ReportRepository>();
+
 
 
 var app = builder.Build();
-//using (var scope = app.Services.CreateScope())
-//{
-//    await DbSeeder.SeedDefaultData(scope.ServiceProvider);
-//}
+// Uncomment it when you run the project first time, It will registered an admin
+using (var scope = app.Services.CreateScope())
+{
+    await DbSeeder.SeedDefaultData(scope.ServiceProvider);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
