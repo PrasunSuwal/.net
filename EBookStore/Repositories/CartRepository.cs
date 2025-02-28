@@ -102,8 +102,10 @@ namespace BookShoppingCartMvcUI.Repositories
             var shoppingCart = await _db.ShoppingCarts
                                   .Include(a => a.CartDetails)
                                   .ThenInclude(a => a.Book)
-                                  .ThenInclude(a => a.Genre)
-                                  .Include(a => a.CartDetails)                               
+                                  .ThenInclude(a => a.Stock)
+                                  .Include(a => a.CartDetails)
+                                  .ThenInclude(a => a.Book)
+                                  .ThenInclude(a => a.Genre)                                                              
                                   .Where(a => a.UserId == userId).FirstOrDefaultAsync();
             return shoppingCart;
 
@@ -175,11 +177,25 @@ namespace BookShoppingCartMvcUI.Repositories
                         BookId = item.BookId,
                         OrderId = order.Id,                        
                         Quantity = item.Quantity,
-                        UnitPrice = item.Book.Price
+                        UnitPrice = item.UnitPrice
                     };
                     _db.OrderDetails.Add(orderDetail);
+                    // update stock here
+
+                    var stock = await _db.Stocks.FirstOrDefaultAsync(a => a.BookId == item.BookId);
+                    if (stock == null)
+                    {
+                        throw new InvalidOperationException("Stock is null");
+                    }
+
+                    if (item.Quantity > stock.Quantity)
+                    {
+                        throw new InvalidOperationException($"Only {stock.Quantity} items(s) are available in the stock");
+                    }
+                    // decrease the number of quantity from the stock table
+                    stock.Quantity -= item.Quantity;
                 }
-                _db.SaveChanges();
+                //_db.SaveChanges();
                 //removing the cartdetails
                 _db.CartDetails.RemoveRange(cartDetail);
                 _db.SaveChanges();
